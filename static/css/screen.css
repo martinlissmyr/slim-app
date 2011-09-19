@@ -1,0 +1,38 @@
+body {
+    font-family: "helvetica neue", "helvetica", "arial", sans-serif;
+    font-size: 14px;
+    padding: 0;
+    margin: 0; }
+input {
+    font-family: "helvetica neue", "helvetica", "arial", sans-serif;
+    font-size: 14px; }
+#header {
+    margin: 0;
+    border-top: 1px solid #f7f0ef;
+    border-bottom: 1px solid #939ea6;
+    background: -webkit-gradient(linear, left top, left bottom, from(#e3dde5), to(#b9c0cd));
+    padding: 10px; }
+#header input {
+    color: #ccc;
+    padding: 10px 15px;
+    width: 100%;
+    -webkit-box-shadow: inset 0 2px 2px rgba(0, 0, 0, 0.25);
+    border: 1px solid #afafaf;
+    border-top: 1px solid #888686;
+    border-radius: 20px; }
+#header input:focus {
+    color: #000;
+}
+#to {
+    margin: 8px 0 0 0; }
+#to-container {
+    display: none;
+}
+.list {
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
+    list-style-type: none; }
+.list li {
+    padding: 15px 10px;
+    border-bottom: 1px solid #e0e0e0; }

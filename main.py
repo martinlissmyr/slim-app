@@ -16,7 +16,9 @@
 #
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
+from google.appengine.ext.webapp import template
 from google.appengine.api.urlfetch import fetch
+import os
 from urlparse import urlparse
 from urllib2 import unquote
 
@@ -25,7 +27,8 @@ journeyKey = 'cadcbf599273c5929e89c315795192ef'
 
 class MainHandler(webapp.RequestHandler):
     def get(self):
-        self.response.out.write('Usage:<br> <a href="/journey/1200/1019">/journey/fromId/toId</a><br><a href="/station/kungsholmen">/station/searchString</a>')
+        self.response.out.write(template.render(os.path.join(os.getcwd(), 'templates/app.html'), {}))
+        #self.response.out.write('Usage:<br> <a href="/journey/1200/1019">/journey/fromId/toId</a><br><a href="/station/kungsholmen">/station/searchString</a>')
 
 class Location(webapp.RequestHandler):
     def get(self):
@@ -35,7 +38,7 @@ class Location(webapp.RequestHandler):
         if len(queries) > 1:
             search = '&stationSearch=' + queries[-1]
             response = fetch(url + search)
-            self.response.headers["Content-Type"] = "application/json; charset=utf-8"
+            self.response.headers["Content-Type"] = "application/javascript; charset=utf-8"
             self.response.out.write('slim(' + response.content + ');')
 
 class Journey(webapp.RequestHandler):
@@ -46,7 +49,7 @@ class Journey(webapp.RequestHandler):
         if len(queries) > 2:
             search = '&S=' + queries[-2] + '&Z=' + queries[-1]
             response = fetch(url + search)
-            self.response.headers["Content-Type"] = "application/json; charset=utf-8"
+            self.response.headers["Content-Type"] = "application/javascript; charset=utf-8"
             self.response.out.write('slim(' + response.content + ');')
 
 def main():
