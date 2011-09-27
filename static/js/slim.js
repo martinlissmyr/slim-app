@@ -29,7 +29,8 @@ input["any"].live("keyup", function() {
                 for (var i = 0, l = data.length; i < l; i++) {
                     if (typeof data[i].Name != "undefined") {
                         if (!data[i].Name.match(/([A-Z]|[ÅÄÖ]){2,}/)) {
-                            html += "<li><a href=\"#\" data-station-id=\"" + data[i].Number + "\">" + data[i].Name + "</a></li>";
+                          var name = data[i].Name.replace(" (Stockholm)", "");
+                          html += "<li><a href=\"#\" data-station-id=\"" + data[i].Number + "\">" + name + "</a></li>";
                         }
                     }
                 }
@@ -43,7 +44,7 @@ input["any"].live("keyup", function() {
 list["link"].live("click", function() {
     selected[station] = $(this).attr("data-station-id");
     var name = $(this).html();
-    resultHead[station].html(name);
+    resultHead[station].html(concat(name));
     input[station].attr("value", name);
     list[station].hide();
 
@@ -77,12 +78,47 @@ function getJson(url, callback) {
     });
 }
 
+function getIcon(type, line) {
+  var className = "other";
+  var text = "X";
+  if (type === "MET") {
+    text = "T";
+    className = "metro";
+    if (line == "17" || line == "18" || line == "19") {
+      className += " green";
+    } else if (line == "13" || line == "14") {
+      className += " red";
+    } else if (line == "10" || line == "11") {
+      className += " blue";
+    }
+  } else if (type === "BUS") {
+    text = "B";
+    className = "bus";
+    if (line == "1" || line == "2" || line == "3" || line == "4") {
+      className += " urban";
+      text = line;
+    }
+  }
+  return "<span class=\"icon " + className + "\"><span>" + text + "</span></span>";
+}
+
+function concat(str) {
+  var limit = 20;
+  if (str.length > limit) {
+    str = str.replace(/ \(.*?\)/, "");
+    if (str.length > limit) {
+      str = str.substr(0, limit) + "…";
+    }
+  }
+  return str;
+}
+
 //doSearch();
 
 function doSearch() {
     $("#result").fadeIn("fast");
     var url = "http://slim-app.appspot.com/journey/" + selected.from + "/" + selected.to
-    //url = "http://slim-app.appspot.com/journey/9192/9309";
+    url = "http://slim-app.appspot.com/journey/9192/1204";
     getJson(url, function(data) {
         data = data.HafasResponse.Trip;
         debug(data);
@@ -93,10 +129,19 @@ function doSearch() {
             var arrival = typeof data[i].Summary.ArrivalTime === "object" ? data[i].Summary.ArrivalTime["#text"] : data[i].Summary.ArrivalTime;
             var departure = typeof data[i].Summary.DepartureTime === "object" ? data[i].Summary.DepartureTime["#text"] : data[i].Summary.DepartureTime;
             
-            html += "<li>";
-            html += "<a href=\"#\"><span class=\"time\"><strong>" + departure + "</strong> &ndash; " + arrival + "</span> <span class=\"duration\">(" + duration + ")</span><br>"
-            html += "<span class=\"connections\">" + data[i].Summary.Origin["#text"] + " &ndash; " + data[i].Summary.Destination["#text"] + "</span></a>";
-            html += "</li>";
+            html += "<li><a href=\"#\">";
+            html += "<span class=\"time\"><strong>" + departure + "</strong> &ndash; " + arrival + "</span> <span class=\"duration\">(" + duration + ")</span><br>"
+            html += "<span class=\"connections\">" + concat(data[i].Summary.Origin["#text"]) + " &ndash; " + concat(data[i].Summary.Destination["#text"]) + "</span>";
+            if (typeof data[i].SubTrip !== "undefined") {
+              if (data[i].SubTrip instanceof Array) {
+                for (var s = 0, sl = data[i].SubTrip.length; s < sl; s++) {
+                  html += getIcon(data[i].SubTrip[s].Transport.Type, data[i].SubTrip[s].Transport.Line);
+                }
+              } else {
+                  html += getIcon(data[i].SubTrip.Transport.Type, data[i].SubTrip.Transport.Line);
+              }
+            }
+            html += "</a></li>";
         }
         html += "</ul>";
         $("#result-list").html(html);

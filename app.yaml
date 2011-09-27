@@ -4,6 +4,9 @@ runtime: python
 api_version: 1
 
 handlers:
+- url: /static/images/(.*)@2x\.(.*)
+  static_files: static/images/\1_2x.\2
+  upload: static/images/.*_2x.*
 - url: /static
   static_dir: static
 - url: .*

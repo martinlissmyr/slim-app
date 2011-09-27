@@ -79,6 +79,41 @@ input {
     display: none;
 }
 
+span.icon {
+  display: inline-block;
+  border-radius: 2px;
+  background: black;
+  padding: 2px;
+  font-size: 8px;
+  font-weight: bold;
+  position: relative;
+  top: -2px;
+  margin: 0 0 0 3px;
+}
+span.icon span {
+  display: inline-block;
+  background: #fff;
+  padding: 0px 3px;
+  border-radius: 10px;
+}
+span.metro {
+  background: #74c239;
+}
+span.metro.red {
+  background: #f55b0d;
+}
+span.metro.blue {
+  background: #1b348e;
+}
+span.bus {
+  background: #bd1129;
+  color: #bd1129;
+}
+span.bus.urban {
+  background: #005ca6;
+  color: #005ca6;
+}
+
 
 /* LISTS */
 .list {
