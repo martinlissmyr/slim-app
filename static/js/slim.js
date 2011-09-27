@@ -1,10 +1,20 @@
 var input = { from: $("#from"), to: $("#to"), any: $("#from,#to") };
-var container = { from: $("#from-container"), to: $("#to-container") }
-var list = { from: $("#from-list"), to: $("#to-list"), link: $("#from-list a,#to-list a") }
-var resultHead = { from: $("#result-from"), to: $("#result-to") }
+var container = { from: $("#from-container"), to: $("#to-container") };
+var list = { from: $("#from-list"), to: $("#to-list"), link: $("#from-list a,#to-list a"), def: $("#default-list") };
+var resultHead = { from: $("#result-from"), to: $("#result-to") };
 var selected = { from: "", to: "" };
 var station = "";
 var searchTimer;
+var scroller;
+
+$(document).ready(function() {
+    scroller = {
+        "default": new TouchScroll(document.querySelector("#default-list"), {elastic: true}),
+        "from":  new TouchScroll(document.querySelector("#from-list"), {elastic: true}),
+        "to": new TouchScroll(document.querySelector("#to-list"), {elastic: true}),
+        "result": new TouchScroll(document.querySelector("#result-list"), {elastic: true})
+    };
+});
 
 input["from"].focus(function() {
     station = "from";
@@ -17,7 +27,13 @@ input["to"].focus(function() {
 });
 
 input["any"].live("keyup", function() {
-    list[station].show();
+    list[station].show(function() {
+        scroller[station].setupScroller(true);
+    });
+    var h = $("#header").outerHeight();
+    var dh = $(window).height();
+    list[station].css("height", (dh - h) + "px");
+    list.def.hide();
     var val = $(this).attr("value");
     clearTimeout(searchTimer);
     searchTimer = setTimeout(function() {
@@ -56,6 +72,27 @@ list["link"].live("click", function() {
     }
 
     return false;
+});
+
+$("#close-results").live("click", function(e) {
+    e.preventDefault();
+    // Reset everything
+    selected.from = "";
+    selected.to = "";
+    list["from"].hide();
+    list["to"].hide();
+    input["from"].attr("value", "Från");
+    input["to"].attr("value", "Till");
+    container["to"].hide();
+    
+    // Show default
+    list.def.show();
+    $("#result").fadeOut("fast");
+
+    // Reset loaders
+    $("#result-list").html("<div class=\"info\">Hämtar information om rutter</div>");
+    list["from"].html("<div class=\"info\">Hämtar matchande stationer</div>");
+    list["to"].html("<div class=\"info\">Hämtar matchande stationer</div>");
 });
 
 function debug(str) {
@@ -116,9 +153,16 @@ function concat(str) {
 //doSearch();
 
 function doSearch() {
-    $("#result").fadeIn("fast");
+    $("#result").fadeIn("fast", function() {
+        var top = $("#result-header").offset().top + $("#result-header").outerHeight();
+        var bottom = $("#result-footer").offset().top;
+        var height = bottom - top;
+        debug(bottom + " - " + top + " = " + height);
+        $("#result-list").css("height", height + "px");
+        scroller["result"].setupScroller(true);
+    });
     var url = "http://slim-app.appspot.com/journey/" + selected.from + "/" + selected.to
-    url = "http://slim-app.appspot.com/journey/9192/1204";
+    //url = "http://slim-app.appspot.com/journey/9192/1204";
     getJson(url, function(data) {
         data = data.HafasResponse.Trip;
         debug(data);
@@ -131,7 +175,7 @@ function doSearch() {
             
             html += "<li><a href=\"#\">";
             html += "<span class=\"time\"><strong>" + departure + "</strong> &ndash; " + arrival + "</span> <span class=\"duration\">(" + duration + ")</span><br>"
-            html += "<span class=\"connections\">" + concat(data[i].Summary.Origin["#text"]) + " &ndash; " + concat(data[i].Summary.Destination["#text"]) + "</span>";
+            html += "<span class=\"connections\">" + concat(data[i].Summary.Origin["#text"]) + " &ndash; " + concat(data[i].Summary.Destination["#text"]) + "</span> ";
             if (typeof data[i].SubTrip !== "undefined") {
               if (data[i].SubTrip instanceof Array) {
                 for (var s = 0, sl = data[i].SubTrip.length; s < sl; s++) {
@@ -147,3 +191,4 @@ function doSearch() {
         $("#result-list").html(html);
     });
 }
+
