@@ -17,8 +17,27 @@ input["to"].focus(function() {
     input[station].attr("value", "");
 });
 
+var headerHeight = $("#header").outerHeight();
+list["def"].css({
+    position: "absolute",
+    top: headerHeight + "px",
+    bottom: 0,
+    left: 0,
+    right: 0
+});
+
 input["any"].live("keyup", function() {
-    list[station].show();
+    list[station].fadeIn("fast", function() {
+        // calculate height of list
+        var top = $("#header").outerHeight() + 1;
+        list[station].css({
+            position: "absolute",
+            top: top + "px",
+            bottom: "0px",
+            left: "0px",
+            right: "0px"
+        });
+    });
     var h = $("#header").outerHeight();
     var dh = $(window).height();
     list[station].css("height", (dh - h) + "px");
@@ -143,15 +162,19 @@ function concat(str) {
 
 function doSearch() {
     $("#result").fadeIn("fast", function() {
-        var top = $("#result-header").offset().top + $("#result-header").outerHeight();
-        var bottom = $("#result-footer").offset().top;
-        var height = bottom - top;
-        debug(bottom + " - " + top + " = " + height);
-        $("#result-list").css("height", height + "px");
-        scroller["result"].setupScroller(true);
+        // calculate height of list
+        var top = $("#result-header").outerHeight() + 1;
+        var bottom = $("#result-footer").outerHeight() -1;
+        $("#result-list").css({
+            position: "absolute",
+            top: top + "px",
+            bottom: bottom + "px",
+            left: "0px",
+            right: "0px"
+        });
     });
-    //var url = "http://slim-app.appspot.com/journey/" + selected.from + "/" + selected.to
-    url = "http://slim-app.appspot.com/journey/9192/1204";
+    var url = "http://slim-app.appspot.com/journey/" + selected.from + "/" + selected.to
+    //url = "http://slim-app.appspot.com/journey/9192/1204";
     getJson(url, function(data) {
         data = data.HafasResponse.Trip;
         debug(data);
@@ -181,3 +204,4 @@ function doSearch() {
     });
 }
 
+document.ontouchmove = function(e){ e.preventDefault(); }

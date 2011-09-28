@@ -19,7 +19,8 @@ input {
 #header input {
     color: #ccc;
     padding: 8px 14px 8px 28px;
-    background: #fff url(../images/icon-from-light.png) 12px 12px no-repeat;
+    background: #fff url(../images/icon-from-light@2x.png) 12px 12px no-repeat;
+    background-size: 13px 10px;
     width: 100%;
     -webkit-box-shadow: inset 0 2px 2px rgba(0, 0, 0, 0.25);
     border: 1px solid #afafaf;
@@ -29,7 +30,7 @@ input {
     color: #000;
 }
 #to {
-    background-image: url(../images/icon-to-light.png) !important;
+    background-image: url(../images/icon-to-light@2x.png) !important;
     margin: 8px 0 0 0; }
 #to-container {
     display: none;
@@ -77,9 +78,6 @@ input {
     font-weight: bold;
     font-size: 18px;
     color: #333; }
-#result-list {
-    overflow: auto;
-    margin-bottom: 50px; }
 #result-footer {
     background: #fff;
     position: absolute;
@@ -108,12 +106,13 @@ input {
 
 #from-list,
 #to-list {
-    display: none;
-}
-#default-list {
   overflow: hidden;
-  height: 200px;
-}
+  display: none; }
+#default-list {
+  overflow: hidden; }
+#result-list {
+    overflow: hidden; }
+
 
 span.icon {
   display: inline-block;
