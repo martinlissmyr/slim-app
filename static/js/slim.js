@@ -7,15 +7,6 @@ var station = "";
 var searchTimer;
 var scroller;
 
-$(document).ready(function() {
-    scroller = {
-        "default": new TouchScroll(document.querySelector("#default-list"), {elastic: true}),
-        "from":  new TouchScroll(document.querySelector("#from-list"), {elastic: true}),
-        "to": new TouchScroll(document.querySelector("#to-list"), {elastic: true}),
-        "result": new TouchScroll(document.querySelector("#result-list"), {elastic: true})
-    };
-});
-
 input["from"].focus(function() {
     station = "from";
     input[station].attr("value", "");
@@ -27,9 +18,7 @@ input["to"].focus(function() {
 });
 
 input["any"].live("keyup", function() {
-    list[station].show(function() {
-        scroller[station].setupScroller(true);
-    });
+    list[station].show();
     var h = $("#header").outerHeight();
     var dh = $(window).height();
     list[station].css("height", (dh - h) + "px");
@@ -51,7 +40,7 @@ input["any"].live("keyup", function() {
                     }
                 }
                 html += "</ul>";
-                list[station].html(html);
+                list[station].find(".list-content").html(html);
             });
         }
     }, 500);
@@ -161,8 +150,8 @@ function doSearch() {
         $("#result-list").css("height", height + "px");
         scroller["result"].setupScroller(true);
     });
-    var url = "http://slim-app.appspot.com/journey/" + selected.from + "/" + selected.to
-    //url = "http://slim-app.appspot.com/journey/9192/1204";
+    //var url = "http://slim-app.appspot.com/journey/" + selected.from + "/" + selected.to
+    url = "http://slim-app.appspot.com/journey/9192/1204";
     getJson(url, function(data) {
         data = data.HafasResponse.Trip;
         debug(data);
@@ -188,7 +177,7 @@ function doSearch() {
             html += "</a></li>";
         }
         html += "</ul>";
-        $("#result-list").html(html);
+        $("#result-list .list-content").html(html);
     });
 }
 
