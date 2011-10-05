@@ -1,11 +1,27 @@
+Storage.prototype.setObject = function(key, value) { this.setItem(key, JSON.stringify(value)); }
+Storage.prototype.getObject = function(key) { return this.getItem(key) && JSON.parse(this.getItem(key)); }
 var input = { from: $("#from"), to: $("#to"), any: $("#from,#to") };
 var container = { from: $("#from-container"), to: $("#to-container") };
-var list = { from: $("#from-list"), to: $("#to-list"), link: $("#from-list a,#to-list a"), def: $("#default-list") };
+var list = { from: $("#from-list"), to: $("#to-list"), link: $("#from-list a,#to-list a"), def: $("#default-list"), result: $("#result-list") };
 var resultHead = { from: $("#result-from"), to: $("#result-to") };
-var selected = { from: "", to: "" };
+var selected = { from: { id: null, name: "" }, to: { id: null, name: "" } };
 var station = "";
 var searchTimer;
 var scroller;
+var storage = { 
+    recent: { 
+        title: "Dina senaste resor",
+        maxItems: 3,
+        items: localStorage.getObject("recent") || []
+    }, 
+    saved: {
+        title: "Sparade resor",
+        maxItems: 50,
+        items: localStorage.getObject("saved") || [] 
+    }
+};
+
+renderDefaults();
 
 input["from"].focus(function() {
     station = "from";
@@ -65,11 +81,12 @@ input["any"].live("keyup", function() {
     }, 500);
 });
 
-list["link"].live("click", function() {
-    selected[station] = $(this).attr("data-station-id");
-    var name = $(this).html();
-    resultHead[station].html(concat(name));
-    input[station].attr("value", name);
+list["link"].live("click", function(e) {
+    e.preventDefault();
+    selected[station].id = $(this).attr("data-station-id");
+    selected[station].name = concat($(this).html());
+    resultHead[station].html(selected[station].name);
+    input[station].attr("value", selected[station].name);
     list[station].hide();
 
     if (station === "from") {
@@ -85,8 +102,10 @@ list["link"].live("click", function() {
 $("#close-results").live("click", function(e) {
     e.preventDefault();
     // Reset everything
-    selected.from = "";
-    selected.to = "";
+    selected.from.id = null;
+    selected.from.name = "";
+    selected.to.id = null;
+    selected.to.name = "";
     list["from"].hide();
     list["to"].hide();
     input["from"].attr("value", "Från");
@@ -94,13 +113,32 @@ $("#close-results").live("click", function(e) {
     container["to"].hide();
     
     // Show default
+    renderDefaults();
     list.def.show();
     $("#result").fadeOut("fast");
 
     // Reset loaders
-    $("#result-list").html("<div class=\"info\">Hämtar information om rutter</div>");
-    list["from"].html("<div class=\"info\">Hämtar matchande stationer</div>");
-    list["to"].html("<div class=\"info\">Hämtar matchande stationer</div>");
+    list["result"].find(".list-content").html("<div class=\"info\">Hämtar information om rutter</div>");
+    list["from"].find(".list-content").html("<div class=\"info\">Hämtar matchande stationer</div>");
+    list["to"].find(".list-content").html("<div class=\"info\">Hämtar matchande stationer</div>");
+});
+
+$("#default-list a").live("click", function(e) {
+    e.preventDefault();
+    var $this = $(this);
+    selected.from.id = $this.attr("data-from");
+    selected.from.name = $this.find(".from").html();
+    selected.to.id = $this.attr("data-to");
+    selected.to.name = $this.find(".to").html();
+    resultHead.from.html(selected.from.name);
+    resultHead.to.html(selected.to.name);
+    doSearch();
+});
+
+$("#save-journey").live("click", function(e) {
+    e.preventDefault();
+    saveJourney("saved");
+    $("#close-results").trigger("click");
 });
 
 function debug(str) {
@@ -147,6 +185,24 @@ function getIcon(type, line) {
   return "<span class=\"icon " + className + "\"><span>" + text + "</span></span>";
 }
 
+function renderDefaults() {
+    var html = [];
+    var lists = ["saved", "recent"];
+    for (var current = 0, nOfLists = lists.length; current < nOfLists; current++) {
+        var currentList = storage[lists[current]];
+        if (currentList.items.length > 0) {
+            var items = currentList.items.reverse();
+            debug("Has " + lists[current] + " searches");
+            html.push("<h1><span>" + currentList.title + "</span></h1><ul>");
+            for (var i = 0; i < items.length; i++) {
+                html.push("<li><a href=\"#\" data-from=\"" + items[i].from.id + "\" data-to=\"" + items[i].to.id + "\"><span class=\"from\">" + items[i].from.name + "</span> > <span class=\"to\">" + items[i].to.name + "</span></a></li>");
+            }
+            html.push("</ul>");
+        }
+    }
+    list.def.html(html.join(""));
+}
+
 function concat(str) {
   var limit = 20;
   if (str.length > limit) {
@@ -158,14 +214,35 @@ function concat(str) {
   return str;
 }
 
-//doSearch();
+function saveJourney(set) {
+    // push to set if not already present
+    var inSet = false;
+    var items = storage[set].items.length;
+    var inHistory = false;
+    for (var i = 0; i < items; i++) {
+        if (storage[set].items[i].from.id === selected.from.id && storage[set].items[i].to.id === selected.to.id) {
+            debug("Already in " + set + ". Ignore!");
+            inHistory = true;
+            break;
+        }
+    }
+    if(!inHistory) {
+        debug("Not in " + set + ". Adding!");
+        storage[set].items.push(selected);
+        if (storage[set].items.length > storage[set].maxItems) {
+            storage[set].items.shift();
+        }
+        localStorage.setObject(set, storage[set].items);
+        storage[set].items = localStorage.getObject(set);
+    }
+}
 
 function doSearch() {
     $("#result").fadeIn("fast", function() {
         // calculate height of list
         var top = $("#result-header").outerHeight() + 1;
         var bottom = $("#result-footer").outerHeight() -1;
-        $("#result-list").css({
+        list["result"].css({
             position: "absolute",
             top: top + "px",
             bottom: bottom + "px",
@@ -173,35 +250,38 @@ function doSearch() {
             right: "0px"
         });
     });
-    var url = "http://slim-app.appspot.com/journey/" + selected.from + "/" + selected.to
-    //url = "http://slim-app.appspot.com/journey/9192/1204";
+    
+    saveJourney("recent");
+        
+    var url = "http://slim-app.appspot.com/journey/" + selected.from.id + "/" + selected.to.id
     getJson(url, function(data) {
         data = data.HafasResponse.Trip;
-        debug(data);
-        var html = "<ul class=\"list\">";
+        var html = [];
+        html.push("<ul class=\"list\">");
         for (var i = 0, l = data.length; i < l; i++) {
             var dur = data[i].Summary.Duration.split(":");
             var duration = (dur[0] > 0 ? (dur[0] + " h ") : "") + dur[1] + " min";
             var arrival = typeof data[i].Summary.ArrivalTime === "object" ? data[i].Summary.ArrivalTime["#text"] : data[i].Summary.ArrivalTime;
             var departure = typeof data[i].Summary.DepartureTime === "object" ? data[i].Summary.DepartureTime["#text"] : data[i].Summary.DepartureTime;
             
-            html += "<li><a href=\"#\">";
-            html += "<span class=\"time\"><strong>" + departure + "</strong> &ndash; " + arrival + "</span> <span class=\"duration\">(" + duration + ")</span><br>"
-            html += "<span class=\"connections\">" + concat(data[i].Summary.Origin["#text"]) + " &ndash; " + concat(data[i].Summary.Destination["#text"]) + "</span> ";
+            html.push("<li><a href=\"#\">");
+            html.push("<span class=\"time\"><strong>" + departure + "</strong> &ndash; " + arrival + "</span> <span class=\"duration\">(" + duration + ")</span><br>");
+            html.push("<span class=\"connections\">" + concat(data[i].Summary.Origin["#text"]) + " &ndash; " + concat(data[i].Summary.Destination["#text"]) + "</span> ");
             if (typeof data[i].SubTrip !== "undefined") {
               if (data[i].SubTrip instanceof Array) {
                 for (var s = 0, sl = data[i].SubTrip.length; s < sl; s++) {
-                  html += getIcon(data[i].SubTrip[s].Transport.Type, data[i].SubTrip[s].Transport.Line);
+                  html.push(getIcon(data[i].SubTrip[s].Transport.Type, data[i].SubTrip[s].Transport.Line));
                 }
               } else {
-                  html += getIcon(data[i].SubTrip.Transport.Type, data[i].SubTrip.Transport.Line);
+                  html.push(getIcon(data[i].SubTrip.Transport.Type, data[i].SubTrip.Transport.Line));
               }
             }
-            html += "</a></li>";
+            html.push("</a></li>");
         }
-        html += "</ul>";
-        $("#result-list .list-content").html(html);
+        html.push("</ul>");
+        list["result"].find(".list-content").html(html.join(""));
     });
 }
 
 document.ontouchmove = function(e){ e.preventDefault(); }
+
