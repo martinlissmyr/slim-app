@@ -1,0 +1,19 @@
+CACHE MANIFEST
+
+# Version 1.0
+
+CACHE:
+http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js
+static/css/screen.css
+static/js/slim.js
+static/js/scrollability.js
+static/images/icon-from-light@2x.png
+static/images/icon-to-light@2x.png
+static/images/icon-from@2x.png
+static/images/icon-to@2x.png
+static/images/icon-time@2x.png
+static/images/ajax-loader.gif
+static/images/startup.png
+
+NETWORK:
+*

@@ -4,6 +4,10 @@ runtime: python
 api_version: 1
 
 handlers:
+- url: /slim.manifest
+  mime_type: text/cache-manifest
+  static_files: static/slim.manifest
+  upload: static/slim.manifest
 - url: /static/images/(.*)@2x\.(.*)
   static_files: static/images/\1_2x.\2
   upload: static/images/.*_2x.*
