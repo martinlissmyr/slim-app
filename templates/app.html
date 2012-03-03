@@ -5,8 +5,7 @@
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="black">
         <meta name="format-detection" content="telephone=no">
-        <script src="static/js/scrollability.js" type="text/javascript"></script>
-        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js" type="text/javascript"></script>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
         <link rel="stylesheet" href="/static/css/screen.css">
         <link rel="apple-touch-icon" href="/static/images/ios-icon.png">
         <link rel="apple-touch-startup-image" href="/static/images/startup.png">
@@ -17,14 +16,14 @@
                 <div id="from-container"><input type="text" name="from" id="from" value="Från"></div>
                 <div id="to-container"><input type="text" name="to" id="to" value="Till"></div>
             </form>
-            <div id="default-list" class="list">
-                <div class="list-content scrollable vertical"></div>
+            <div id="default-list" class="list visible">
+                <div class="list-content vertical"></div>
             </div>
             <div id="from-list" class="list">
-              <div class="list-content scrollable vertical"><div class="info">Hämtar matchande stationer</div></div>
+              <div class="list-content vertical"><div class="info">Hämtar matchande stationer</div></div>
             </div>
             <div id="to-list" class="list">
-              <div class="list-content scrollable vertical"><div class="info">Hämtar matchande stationer</div></div>
+              <div class="list-content vertical"><div class="info">Hämtar matchande stationer</div></div>
             </div>
         </div>
         <div id="result">
@@ -36,7 +35,7 @@
                     </ul>
                 </div>
                 <div id="result-list" class="list">
-                  <div class="list-content scrollable vertical">
+                  <div class="list-content vertical">
                     <div class="info">Hämtar information om rutter</div>
                   </div>
                 </div>

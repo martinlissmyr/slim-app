@@ -1,12 +1,11 @@
 CACHE MANIFEST
 
-# Version 1.0
+# Version 2.3
 
 CACHE:
-http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js
+http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js
 static/css/screen.css
 static/js/slim.js
-static/js/scrollability.js
 static/images/icon-from-light@2x.png
 static/images/icon-to-light@2x.png
 static/images/icon-from@2x.png

@@ -7,7 +7,6 @@ var resultHead = { from: $("#result-from"), to: $("#result-to") };
 var selected = { from: { id: null, name: "" }, to: { id: null, name: "" } };
 var station = "";
 var searchTimer;
-var scroller;
 var storage = { 
     recent: { 
         title: "Dina senaste resor",
@@ -43,21 +42,20 @@ list["def"].css({
 });
 
 input["any"].live("keyup", function() {
-    list[station].fadeIn("fast", function() {
-        // calculate height of list
-        var top = $("#header").outerHeight() + 1;
-        list[station].css({
-            position: "absolute",
-            top: top + "px",
-            bottom: "0px",
-            left: "0px",
-            right: "0px"
-        });
+    list[station].addClass("visible");
+    list.def.removeClass("visible");
+    // calculate height of list
+    var top = $("#header").outerHeight() + 1;
+    list[station].css({
+        position: "absolute",
+        top: top + "px",
+        bottom: "0px",
+        left: "0px",
+        right: "0px"
     });
     var h = $("#header").outerHeight();
     var dh = $(window).height();
     list[station].css("height", (dh - h) + "px");
-    list.def.hide();
     var val = $(this).attr("value");
     clearTimeout(searchTimer);
     searchTimer = setTimeout(function() {
@@ -87,10 +85,10 @@ list["link"].live("click", function(e) {
     selected[station].name = concat($(this).html());
     resultHead[station].html(selected[station].name);
     input[station].attr("value", selected[station].name);
-    list[station].hide();
+    list[station].removeClass("visible");
 
     if (station === "from") {
-        container["to"].show();
+        container["to"].addClass("visible");
         input["to"].focus();
     } else if (station === "to") {
         doSearch()
@@ -106,16 +104,16 @@ $("#close-results").live("click", function(e) {
     selected.from.name = "";
     selected.to.id = null;
     selected.to.name = "";
-    list["from"].hide();
-    list["to"].hide();
+    list["from"].removeClass("visible");
+    list["to"].removeClass("visible");
     input["from"].attr("value", "Från");
     input["to"].attr("value", "Till");
-    container["to"].hide();
+    container["to"].removeClass("visible");
     
     // Show default
     renderDefaults();
-    list.def.show();
-    $("#result").fadeOut("fast");
+    list.def.addClass("visible");
+    $("#result").removeClass("visible");
 
     // Reset loaders
     list["result"].find(".list-content").html("<div class=\"info\">Hämtar information om rutter</div>");
@@ -238,17 +236,16 @@ function saveJourney(set) {
 }
 
 function doSearch() {
-    $("#result").fadeIn("fast", function() {
-        // calculate height of list
-        var top = $("#result-header").outerHeight() + 1;
-        var bottom = $("#result-footer").outerHeight() -1;
-        list["result"].css({
-            position: "absolute",
-            top: top + "px",
-            bottom: bottom + "px",
-            left: "0px",
-            right: "0px"
-        });
+    $("#result").addClass("visible");
+    // calculate height of list
+    var top = $("#result-header").outerHeight() + 1;
+    var bottom = $("#result-footer").outerHeight() -1;
+    list["result"].css({
+        position: "absolute",
+        top: top + "px",
+        bottom: bottom + "px",
+        left: "0px",
+        right: "0px"
     });
     
     saveJourney("recent");
@@ -283,5 +280,39 @@ function doSearch() {
     });
 }
 
-document.ontouchmove = function(e){ e.preventDefault(); }
+/**
+ * ScrollFix v0.1
+ * http://www.joelambert.co.uk
+ *
+ * Copyright 2011, Joe Lambert.
+ * Free to use under the MIT license.
+ * http://www.opensource.org/licenses/mit-license.php
+ */
 
+var ScrollFix = function(elem) {
+	// Variables to track inputs
+	var startY, startTopScroll;
+	
+	elem = elem || document.querySelector(elem);
+	
+	// If there is no element, then do nothing	
+	if(!elem)
+		return;
+
+	// Handle the start of interactions
+	elem.addEventListener('touchstart', function(event){
+		startY = event.touches[0].pageY;
+		startTopScroll = elem.scrollTop;
+		
+		if(startTopScroll <= 0)
+			elem.scrollTop = 1;
+
+		if(startTopScroll + elem.offsetHeight >= elem.scrollHeight)
+			elem.scrollTop = elem.scrollHeight - elem.offsetHeight - 1;
+	}, false);
+};
+
+new ScrollFix(document.getElementById("default-list"));
+new ScrollFix(document.getElementById("from-list"));
+new ScrollFix(document.getElementById("to-list"));
+new ScrollFix(document.getElementById("result-list"));

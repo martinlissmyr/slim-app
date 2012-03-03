@@ -6,9 +6,15 @@ body {
     font-size: 14px;
     padding: 0;
     margin: 0; }
+html, body {
+  height: 100%;
+  overflow: hidden; }
 input {
     font-family: "helvetica neue", "helvetica", "arial", sans-serif;
     font-size: 14px; }
+.visible {
+    opacity: 1 !important;
+    display: block !important; }
 #header,
 #result-header {
     margin: 0;
@@ -27,14 +33,14 @@ input {
     border-top: 1px solid #888686;
     border-radius: 17px; }
 #header input:focus {
-    color: #000;
-}
+    color: #000; }
 #to {
     background-image: url(../images/icon-to-light@2x.png) !important;
     margin: 8px 0 0 0; }
 #to-container {
-    display: none;
-}
+    opacity: 0;
+    -webkit-transition: opacity 2s ease;
+    display: none; }
 
 
 .info {
@@ -45,6 +51,8 @@ input {
 
 #result {
     display: none;
+    opacity: 0;
+    -webkit-transition: opacity 4s ease;
     position: absolute;
     top: 0px;
     left: 0px;
@@ -96,7 +104,6 @@ input {
     border: 1px solid #666;
     text-decoration: none;
     color: #fff;
-    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.5);
     text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.9);
     background: -webkit-gradient(linear, left top, left bottom, from(#d8d8d8), to(#929292)); }
 #result-footer a#close-results {
@@ -106,12 +113,20 @@ input {
 
 #from-list,
 #to-list {
-  overflow: hidden;
+  -webkit-overflow-scrolling: touch;
+  overflow: scroll;
+  opacity: 0;
+  -webkit-transition: opacity 1s ease;
   display: none; }
 #default-list {
-  overflow: hidden; }
+  opacity: 0;
+  -webkit-transition: opacity 1s ease;
+  display: none;
+  -webkit-overflow-scrolling: touch;
+  overflow: scroll; }
 #result-list {
-    overflow: hidden; }
+  -webkit-overflow-scrolling: touch;
+  overflow: scroll; }
 
 
 span.icon {
