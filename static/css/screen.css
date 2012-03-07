@@ -13,8 +13,8 @@ input {
     font-family: "helvetica neue", "helvetica", "arial", sans-serif;
     font-size: 14px; }
 .visible {
-    opacity: 1 !important;
-    display: block !important; }
+    -webkit-transition: opacity 0.3s ease;
+    opacity: 1 !important; }
 #header,
 #result-header {
     margin: 0;
@@ -39,9 +39,13 @@ input {
     margin: 8px 0 0 0; }
 #to-container {
     opacity: 0;
-    -webkit-transition: opacity 2s ease;
     display: none; }
-
+#datetime {
+    /* Hide it */
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+}
 
 .info {
     background: url(../images/ajax-loader.gif) 50% 15px no-repeat;
@@ -52,7 +56,6 @@ input {
 #result {
     display: none;
     opacity: 0;
-    -webkit-transition: opacity 4s ease;
     position: absolute;
     top: 0px;
     left: 0px;
@@ -116,18 +119,15 @@ input {
   -webkit-overflow-scrolling: touch;
   overflow: scroll;
   opacity: 0;
-  -webkit-transition: opacity 1s ease;
   display: none; }
 #default-list {
   opacity: 0;
-  -webkit-transition: opacity 1s ease;
-  display: none;
   -webkit-overflow-scrolling: touch;
   overflow: scroll; }
 #result-list {
+  bottom: 51px;
   -webkit-overflow-scrolling: touch;
   overflow: scroll; }
-
 
 div.icons {
   margin: 5px 0 0 0;
